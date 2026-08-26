@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>黄展鹏 · 3D 美工 / 产品渲染师 | Portfolio</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-deep:#020008;--bg-mid:#06061a;--bg-surface:#0a0a20;--bg-card:#0f0f2a;
+  --accent:#a855f7;--accent-glow:#c084fc;--accent-deep:#6d28d9;--accent-dim:rgba(168,85,247,0.15);
+  --gold:#f59e0b;--cyan:#06b6d4;
+  --text:#f1f0f8;--text2:#a09fb6;--text3:#6b6a80;
+  --border:rgba(168,85,247,0.12);--radius:16px;
+}
+html{scroll-behavior:smooth;background:var(--bg-deep);color:var(--text);font-family:"Microsoft YaHei","PingFang SC",sans-serif;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;overflow-x:hidden;cursor:none}
+a{color:inherit;text-decoration:none}img{display:block;max-width:100%}
+::selection{background:var(--accent);color:#fff}
+
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent-deep),var(--accent-glow),var(--cyan));z-index:1000;width:0;transition:width 0.1s linear;border-radius:0 2px 2px 0}
+#cursor{position:fixed;width:20px;height:20px;border:2px solid var(--accent-glow);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width 0.2s,height 0.2s,border-color 0.2s;mix-blend-mode:screen}
+#cursor-dot{position:fixed;width:4px;height:4px;background:var(--accent-glow);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+#cursor.hover{width:44px;height:44px;border-color:var(--gold);background:rgba(245,158,11,0.08)}
+#particles{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 32px;display:flex;justify-content:space-between;align-items:center;transition:all 0.4s}
+.nav.scrolled{background:rgba(2,0,8,0.75);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);padding:12px 32px}
+.nav-logo{font-size:1.4rem;font-weight:800;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--accent-glow),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{font-size:0.82rem;font-weight:500;color:var(--text2);transition:color 0.25s;letter-spacing:0.04em;position:relative;padding:4px 0}
+.nav-links a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1.5px;background:var(--accent-glow);transition:width 0.3s}
+.nav-links a:hover{color:var(--text)}.nav-links a:hover::after{width:100%}
+
+.sec{position:relative;padding:110px 24px;max-width:1280px;margin:0 auto;z-index:1}
+.sec-label{font-size:0.72rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.sec-label::before{content:'';display:inline-block;width:28px;height:1px;background:var(--accent)}
+.sec-title{font-size:clamp(1.8rem,3.8vw,3rem);font-weight:800;line-height:1.15;margin-bottom:14px;background:linear-gradient(135deg,#fff 30%,var(--accent-glow));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sec-desc{color:var(--text2);font-size:1rem;line-height:1.75;max-width:620px;margin-bottom:48px}
+.sec-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 auto;max-width:1280px}
+
+.fade-in{opacity:0;transform:translateY(32px);transition:opacity 0.8s ease,transform 0.8s ease}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+
+.hero{position:relative;height:100vh;min-height:700px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#hero-canvas{position:absolute;inset:0;z-index:0}
+.hero-overlay{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,transparent 30%,rgba(2,0,8,0.5) 60%,var(--bg-deep) 90%);z-index:1}
+.hero-content{position:relative;z-index:2;text-align:center;padding:0 24px}
+.hero-tag{display:inline-block;font-size:0.68rem;font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--accent-glow);border:1px solid rgba(168,85,247,0.25);border-radius:100px;padding:7px 22px;margin-bottom:24px;backdrop-filter:blur(8px);background:rgba(168,85,247,0.05)}
+.hero-name{font-size:clamp(3rem,7vw,5.5rem);font-weight:900;letter-spacing:-0.03em;line-height:1;margin-bottom:12px;background:linear-gradient(180deg,#fff 0%,#c4b5fd 40%,var(--accent) 75%,var(--accent-deep) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:clamp(1rem,2vw,1.25rem);color:var(--text2);letter-spacing:0.1em;height:1.5em;display:flex;align-items:center;justify-content:center;gap:4px}
+.hero-sub .cursor-blink{display:inline-block;width:2px;height:1.2em;background:var(--accent-glow);animation:blink 0.8s step-end infinite;vertical-align:text-bottom}
+@keyframes blink{50%{opacity:0}}
+.hero-scroll{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text3);font-size:0.65rem;letter-spacing:0.18em;animation:float 2.5s ease-in-out infinite}
+.hero-scroll::after{content:"";width:1px;height:28px;background:linear-gradient(to bottom,var(--accent),transparent)}
+@keyframes float{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+
+/* ═══ STATS ═══ */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center}
+.stat-item{padding:28px 16px;border-radius:var(--radius);background:var(--bg-card);border:1px solid var(--border);transition:transform 0.35s,border-color 0.35s}
+.stat-item:hover{transform:translateY(-4px);border-color:rgba(168,85,247,0.3)}
+.stat-num{font-size:2.6rem;font-weight:900;background:linear-gradient(135deg,var(--accent-glow),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1}
+.stat-label{font-size:0.8rem;color:var(--text3);margin-top:6px}
+.stat-icon{font-size:1.6rem;margin-bottom:8px}
+.dw-wrap{width:100%;height:540px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);background:var(--bg-surface);position:relative;perspective:1400px;perspective-origin:50% 60%}
+.dw-plane{position:absolute;top:50%;left:50%;transform-style:preserve-3d;display:flex;gap:16px}
+.dw-col{flex:0 0 220px;overflow:hidden;border-radius:12px}
+.dw-track{will-change:transform}
+.dw-tile{display:block;width:220px;height:148px;margin-bottom:16px;border-radius:12px;overflow:hidden;position:relative;filter:brightness(0.8);transition:transform 0.35s,filter 0.35s,box-shadow 0.35s}
+.dw-tile:hover{transform:scale(1.1) translateZ(80px);filter:brightness(1.05);box-shadow:0 20px 50px rgba(0,0,0,0.5),0 0 30px rgba(168,85,247,0.25);z-index:2}
+.dw-tile img{display:block;width:100%;height:100%;object-fit:cover}
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+.svc-card{position:relative;padding:32px 24px;border-radius:var(--radius);background:var(--bg-card);border:1px solid var(--border);overflow:hidden;transition:all 0.4s}
+.svc-card::before{content:'';position:absolute;inset:0;background:radial-gradient(600px circle at var(--mx,50%) var(--my,50%),var(--accent-dim),transparent 40%);opacity:0;transition:opacity 0.4s}
+.svc-card:hover::before{opacity:1}
+.svc-card:hover{transform:translateY(-6px);border-color:rgba(168,85,247,0.35);box-shadow:0 16px 48px rgba(168,85,247,0.08)}
+.svc-icon{font-size:2rem;margin-bottom:16px;display:block}
+.svc-card h3{font-size:1.05rem;font-weight:700;margin-bottom:8px}
+.svc-card p{font-size:0.85rem;color:var(--text2);line-height:1.6}
+.svc-tag{display:inline-block;margin-top:14px;padding:4px 12px;border-radius:100px;font-size:0.7rem;color:var(--accent-glow);background:var(--accent-dim);border:1px solid rgba(168,85,247,0.18)}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
+.cat-card{position:relative;border-radius:var(--radius);overflow:hidden;background:var(--bg-card);border:1px solid var(--border);transition:all 0.4s;cursor:pointer}
+.cat-card:hover{transform:translateY(-5px);box-shadow:0 16px 48px rgba(0,0,0,0.3),0 0 0 1px rgba(168,85,247,0.2)}
+.cat-card img{width:100%;aspect-ratio:4/3;object-fit:cover;transition:transform 0.5s}
+.cat-card:hover img{transform:scale(1.06)}
+.cat-info{padding:15px 18px 18px}
+.cat-info h3{font-size:0.9rem;font-weight:600;margin-bottom:4px}
+.cat-info p{font-size:0.78rem;color:var(--text3)}
+.cat-hdr{display:flex;gap:14px;align-items:baseline;margin-bottom:22px}
+.cat-hdr h3{font-size:1.25rem;font-weight:700}
+.cat-hdr span{color:var(--text3);font-size:0.82rem}
+.bento{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.bento-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:28px;transition:border-color 0.35s}
+.bento-card:hover{border-color:rgba(168,85,247,0.28)}
+.bento-card h4{font-size:0.85rem;color:var(--accent);margin-bottom:14px;letter-spacing:0.04em}
+.bento-info{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.info-cell{padding:16px;border-radius:var(--radius-sm);background:rgba(168,85,247,0.04);border:1px solid var(--border);text-align:center}
+.info-cell .info-val{font-size:1rem;font-weight:700;margin-bottom:2px}
+.info-cell .info-lbl{font-size:0.7rem;color:var(--text3)}
+.timeline{position:relative;padding-left:32px;max-width:700px}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent),var(--accent-deep),transparent)}
+.tl-item{position:relative;margin-bottom:32px;padding-left:20px}
+.tl-item::before{content:'';position:absolute;left:-26px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+.tl-item h4{font-size:0.95rem;font-weight:700;margin-bottom:4px}
+.tl-item .tl-sub{font-size:0.8rem;color:var(--accent-glow);margin-bottom:8px}
+.tl-item li{font-size:0.88rem;color:var(--text2);line-height:1.7;margin-bottom:6px}
+.skill-bars{display:grid;grid-template-columns:1fr 1fr;gap:14px 32px}
+.skill-bar-item{display:flex;flex-direction:column;gap:4px}
+.sb-label{display:flex;justify-content:space-between;font-size:0.8rem}
+.sb-label span:first-child{color:var(--text2)}
+.sb-label span:last-child{color:var(--accent-glow)}
+.sb-track{height:6px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden}
+.sb-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent-deep),var(--accent-glow));transition:width 1.2s ease;width:0}
+.skill-tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.skill-tag{padding:6px 16px;border-radius:100px;font-size:0.78rem;font-weight:500;color:var(--accent-glow);background:var(--accent-dim);border:1px solid rgba(168,85,247,0.18);transition:all 0.3s}
+.skill-tag:hover{background:rgba(168,85,247,0.22);border-color:rgba(168,85,247,0.35);transform:translateY(-2px)}
+.contact-grid{display:flex;flex-wrap:wrap;gap:30px;justify-content:center;margin-top:28px;margin-bottom:36px}
+.contact-item{text-align:center;padding:20px 28px;border-radius:var(--radius);background:var(--bg-card);border:1px solid var(--border);min-width:160px;transition:all 0.35s}
+.contact-item:hover{border-color:rgba(168,85,247,0.3);transform:translateY(-3px)}
+.ci-icon{font-size:1.5rem;margin-bottom:8px}
+.ci-val{font-size:0.95rem;font-weight:600}
+.ci-lbl{font-size:0.7rem;color:var(--text3);margin-top:4px;letter-spacing:0.08em}
+.cta-btn{display:inline-block;padding:15px 44px;border-radius:100px;font-size:0.88rem;font-weight:700;letter-spacing:0.06em;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-deep));border:none;cursor:pointer;transition:all 0.4s;position:relative;overflow:hidden}
+.cta-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--cyan),var(--accent));opacity:0;transition:opacity 0.4s}
+.cta-btn:hover::after{opacity:1}
+.cta-btn:hover{box-shadow:0 0 48px rgba(168,85,247,0.4);transform:translateY(-3px)}
+.cta-btn span{position:relative;z-index:1}
+#back-top{position:fixed;bottom:32px;right:32px;z-index:200;width:44px;height:44px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.35s;opacity:0;transform:translateY(16px);pointer-events:none;color:var(--accent-glow);font-size:1.2rem}
+#back-top.show{opacity:1;transform:translateY(0);pointer-events:auto}
+#back-top:hover{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 0 24px rgba(168,85,247,0.3)}
+#lightbox{position:fixed;inset:0;z-index:999;background:rgba(2,0,8,0.94);backdrop-filter:blur(16px);display:none;align-items:center;justify-content:center;padding:40px;cursor:zoom-out}
+#lightbox.show{display:flex}
+#lightbox img{max-width:90vw;max-height:85vh;border-radius:12px;box-shadow:0 0 80px rgba(168,85,247,0.15);animation:lbIn 0.35s ease}
+@keyframes lbIn{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
+.lb-caption{position:absolute;bottom:30px;color:var(--text2);font-size:0.85rem}
+footer{border-top:1px solid var(--border);padding:28px 24px;text-align:center;color:var(--text3);font-size:0.78rem;background:var(--bg-mid)}
+footer .ft-grid{display:flex;justify-content:center;gap:32px;margin-bottom:16px}
+footer .ft-grid a{color:var(--text2);transition:color 0.25s}
+footer .ft-grid a:hover{color:var(--accent-glow)}
+@media(max-width:768px){
+  .nav{padding:14px 18px}.nav-links{display:none}.nav.scrolled{padding:10px 18px}
+  .sec{padding:64px 18px}.stats-grid{grid-template-columns:1fr 1fr;gap:14px}
+  .bento,.bento-info{grid-template-columns:1fr 1fr;gap:12px}.skill-bars{grid-template-columns:1fr}
+  .dw-wrap{height:380px}.dw-col{flex:0 0 140px}.dw-tile{width:140px;height:95px}
+  #back-top{bottom:20px;right:20px;width:38px;height:38px}
+  .timeline{padding-left:22px}.tl-item{padding-left:12px}.tl-item::before{left:-18px;width:10px;height:10px}
+}
+</style>
+</head>
+<body>
+<div id="progress-bar"></div>
+<div id="cursor"></div><div id="cursor-dot"></div>
+<canvas id="particles"></canvas>
+
+<nav class="nav" id="nav">
+  <div class="nav-logo">HZP</div>
+  <ul class="nav-links">
+    <li><a href="#hero">首页</a></li><li><a href="#work">作品</a></li>
+    <li><a href="#stats">数据</a></li><li><a href="#services">服务</a></li>
+    <li><a href="#portfolio">分类</a></li><li><a href="#about">关于</a></li>
+    <li><a href="#contact">联系</a></li>
+  </ul>
+</nav>
+
+<section class="hero" id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <span class="hero-tag">3D 美工 · 产品渲染师</span>
+    <h1 class="hero-name">黄展鹏</h1>
+    <p class="hero-sub"><span id="type-text"></span><span class="cursor-blink"></span></p>
+  </div>
+  <div class="hero-scroll"><span>SCROLL</span></div>
+</section>
+
+<section class="sec fade-in" id="stats" style="padding-top:60px;padding-bottom:60px">
+  <div class="stats-grid">
+    <div class="stat-item"><div class="stat-icon">🎬</div><div class="stat-num" data-target="50">0</div><div class="stat-label">完成项目</div></div>
+    <div class="stat-item"><div class="stat-icon">⏳</div><div class="stat-num" data-target="2">0</div><div class="stat-label">工作经验 / 年</div></div>
+    <div class="stat-item"><div class="stat-icon">🏢</div><div class="stat-num" data-target="8">0</div><div class="stat-label">品类覆盖</div></div>
+    <div class="stat-item"><div class="stat-icon">🛠️</div><div class="stat-num" data-target="12">0</div><div class="stat-label">掌握工具</div></div>
+  </div>
+</section>
+
+<section class="sec fade-in" id="work">
+  <p class="sec-label">Featured Works</p>
+  <h2 class="sec-title">精选作品</h2>
+  <p class="sec-desc">产品渲染精选，涵盖耳机、手表、个护、美妆、3C数码等多品类。鼠标悬停放大查看细节，拖拽感受 3D 深度。</p>
+  <div class="dw-wrap" id="drift-wall"></div>
+</section>
+
+<section class="sec fade-in" id="services" style="padding-top:60px">
+  <p class="sec-label">Services</p>
+  <h2 class="sec-title">服务能力</h2>
+  <p class="sec-desc">从 3D 建模到电商视觉输出，提供全方位产品视觉解决方案。</p>
+  <div class="svc-grid" id="svc-grid"></div>
+</section>
+
+<section class="sec fade-in" id="portfolio">
+  <p class="sec-label">Portfolio</p>
+  <h2 class="sec-title">分类作品</h2>
+  <p class="sec-desc">按项目类型分类浏览完整作品集，点击可查看大图。</p>
+  <div class="cat-hdr"><h3>主图设计</h3><span>电商主图视觉设计，突出产品核心卖点</span></div>
+  <div class="cat-grid" id="cat-zhutu"></div>
+  <div class="cat-hdr" style="margin-top:48px"><h3>电商设计</h3><span>亚马逊 / B店 视觉全案，主图到 A+ 页面全链路</span></div>
+  <div class="cat-grid" id="cat-dianshang"></div>
+  <div class="cat-hdr" style="margin-top:48px"><h3>详情页设计</h3><span>产品详情长图，场景化表达提升用户停留与购买意愿</span></div>
+  <div class="cat-grid" id="cat-xiangqing"></div>
+</section>
+
+<div class="sec-divider"></div>
+
+<section class="sec fade-in" id="about">
+  <p class="sec-label">About</p>
+  <h2 class="sec-title">关于我</h2>
+  <div class="bento">
+    <div class="bento-info">
+      <div class="info-cell"><div class="info-lbl">姓名</div><div class="info-val">黄展鹏</div></div>
+      <div class="info-cell"><div class="info-lbl">性别</div><div class="info-val">男</div></div>
+      <div class="info-cell"><div class="info-lbl">年龄</div><div class="info-val">19 岁</div></div>
+      <div class="info-cell"><div class="info-lbl">出生</div><div class="info-val">2007.4.14</div></div>
+      <div class="info-cell"><div class="info-lbl">籍贯</div><div class="info-val">广东</div></div>
+      <div class="info-cell"><div class="info-lbl">学历</div><div class="info-val">中专</div></div>
+      <div class="info-cell"><div class="info-lbl">专业</div><div class="info-val">数字媒体技术</div></div>
+      <div class="info-cell"><div class="info-lbl">所在地</div><div class="info-val">广东深圳</div></div>
+    </div>
+    <div class="bento-card"><h4>教育经历</h4>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <span style="font-size:1.6rem">🎓</span>
+        <div><p style="font-weight:700;font-size:0.95rem">肇庆科技中等职业学校</p><p style="font-size:0.8rem;color:var(--text3)">数字媒体技术应用 · 中专</p></div>
+      </div>
+      <p style="font-size:0.78rem;color:var(--accent-glow)">2022.9 — 2024.6</p>
+    </div>
+    <div class="bento-card"><h4>核心技能</h4><div class="skill-tags" id="skill-tags-ai"></div></div>
+    <div class="bento-card"><h4>专业软件</h4><div class="skill-bars" id="skill-bars"></div></div>
+  </div>
+</section>
+
+<section class="sec fade-in" id="experience" style="padding-top:60px">
+  <p class="sec-label">Experience</p>
+  <h2 class="sec-title">工作经验</h2>
+  <div class="timeline">
+    <div class="tl-item">
+      <h4>3D 美工</h4>
+      <p class="tl-sub">广州帆哗日用品有限公司</p>
+      <ul style="padding-left:18px">
+        <li>依据产品样品，独立完成 3D 建模、模型优化、渲染及后期全流程制作，确保最终视觉表现的高质量输出。</li>
+        <li>精准把握产品卖点、形态与结构，通过合理的灯光、材质及构图设计，有效提升画面表现力。</li>
+        <li>根据多平台需求，独立输出静态图像与动态展示内容，涵盖公司各电商平台的产品图片及基于产品优势制作的动画视频。</li>
+        <li>积极协同团队完成项目相关的视觉优化、调整及产品后续支持工作。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="sec fade-in" id="eval" style="padding-top:60px">
+  <p class="sec-label">Self-Evaluation</p>
+  <h2 class="sec-title">自我评价</h2>
+  <div style="max-width:700px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:32px">
+    <p style="color:var(--text2);font-size:0.98rem;line-height:1.9;position:relative">
+      <span style="position:absolute;top:-4px;left:-4px;font-size:3rem;color:var(--accent);opacity:0.3;line-height:1">"</span>
+      <span style="position:relative;z-index:1">性格沉稳，善于在压力下理清思路并有效执行，拥有出色的学习转化能力，能快速汲取经验并应用于实际工作中。不惧繁琐与困难，愿意从基层做起扎实积累，致力于以持续的行动力为团队创造价值。</span>
+      <span style="position:absolute;bottom:-30px;right:-4px;font-size:3rem;color:var(--accent);opacity:0.3;line-height:1">"</span>
+    </p>
+  </div>
+</section>
+
+<section class="sec fade-in" id="contact" style="text-align:center">
+  <p class="sec-label">Contact</p>
+  <h2 class="sec-title">联系方式</h2>
+  <div class="contact-grid">
+    <div class="contact-item"><div class="ci-icon">📱</div><div class="ci-val">18312684172</div><div class="ci-lbl">电话</div></div>
+    <div class="contact-item"><div class="ci-icon">📧</div><div class="ci-val">3208237828@qq.com</div><div class="ci-lbl">邮箱</div></div>
+    <div class="contact-item"><div class="ci-icon">📍</div><div class="ci-val">广东深圳</div><div class="ci-lbl">地址</div></div>
+  </div>
+  <a class="cta-btn" href="mailto:3208237828@qq.com"><span>发送邮件 ✦</span></a>
+</section>
+
+<footer>
+  <div class="ft-grid">
+    <a href="#hero">首页</a><a href="#work">作品</a><a href="#about">关于</a><a href="#contact">联系</a>
+  </div>
+  <p>© 2026 黄展鹏 · 3D 美工 / 产品渲染师</p>
+</footer>
+
+<div id="back-top" title="回到顶部">↑</div>
+<div id="lightbox"><div><img id="lb-img" src="" alt=""><span class="lb-caption" id="lb-caption"></span></div></div>
+
+
+<script>
+function IMG(n){return'images/'+n;}
+
+/* ═══ SCROLL PROGRESS ═══ */
+(function(){var bar=document.getElementById('progress-bar');window.addEventListener('scroll',function(){var h=document.documentElement.scrollHeight-window.innerHeight;bar.style.width=h>0?(window.scrollY/h*100)+'%':'0%';},{passive:true});})();
+
+/* ═══ CURSOR ═══ */
+(function(){var c=document.getElementById('cursor'),d=document.getElementById('cursor-dot');var mx=0,my=0,cx=0,cy=0;document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;d.style.left=mx+'px';d.style.top=my+'px';});function anim(){cx+=(mx-cx)*0.18;cy+=(my-cy)*0.18;c.style.left=cx+'px';c.style.top=cy+'px';requestAnimationFrame(anim);}anim();document.querySelectorAll('a,button,.cat-card,.dw-tile,.cta-btn,.contact-item,.stat-item,.svc-card,#back-top,.skill-tag').forEach(function(el){el.addEventListener('mouseenter',function(){c.classList.add('hover');});el.addEventListener('mouseleave',function(){c.classList.remove('hover');});});})();
+
+/* ═══ PARTICLES ═══ */
+(function(){var c=document.getElementById('particles'),ctx=c.getContext('2d'),w,h,ps=[];function resize(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}resize();window.addEventListener('resize',resize);for(var i=0;i<60;i++)ps.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.5+0.5,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,o:Math.random()*0.5+0.1});function draw(){ctx.clearRect(0,0,w,h);for(var i=0;i<ps.length;i++){var p=ps[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=w;if(p.x>w)p.x=0;if(p.y<0)p.y=h;if(p.y>h)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(168,85,247,'+p.o+')';ctx.fill();}requestAnimationFrame(draw);}draw();})();
+
+/* ═══ FADE-IN ═══ */
+(function(){var els=document.querySelectorAll('.fade-in');var ob=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');ob.unobserve(e.target);}});},{threshold:0.12,rootMargin:'0px 0px -30px 0px'});els.forEach(function(el){ob.observe(el);});})();
+
+/* ═══ BACK TO TOP ═══ */
+(function(){var btn=document.getElementById('back-top');window.addEventListener('scroll',function(){btn.classList.toggle('show',window.scrollY>500);},{passive:true});btn.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});})();
+
+/* ═══ STATS COUNTER ═══ */
+(function(){var triggered=false;var ob=new IntersectionObserver(function(entries){if(entries[0].isIntersecting&&!triggered){triggered=true;startCount();}},{threshold:0.5});var stats=document.getElementById('stats');if(stats)ob.observe(stats);function startCount(){document.querySelectorAll('.stat-num[data-target]').forEach(function(el){var t=parseInt(el.getAttribute('data-target')),d=0,s=t/60;function up(){d+=s;if(d>=t){el.textContent=t;return}el.textContent=Math.floor(d);requestAnimationFrame(up);}up();});}})();
+
+/* ═══ SKILL BARS ═══ */
+(function(){var ob=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.querySelectorAll('.sb-fill').forEach(function(f){f.style.width=f.getAttribute('data-w')+'%';});ob.unobserve(e.target);}});},{threshold:0.3});var el=document.getElementById('skill-bars');if(el)ob.observe(el);})();
+
+/* ═══ TYPING EFFECT ═══ */
+(function(){var words=['C4D 建模渲染','产品动画制作','电商视觉设计','3D 产品精修','AI 辅助创作'];var i=0,j=0,deleting=false,el=document.getElementById('type-text');function type(){var w=words[i];if(deleting){el.textContent=w.substring(0,j-1);j--;}else{el.textContent=w.substring(0,j+1);j++;}var speed=deleting?40:100;if(!deleting&&j===w.length){speed=1800;deleting=true;}else if(deleting&&j===0){deleting=false;i=(i+1)%words.length;speed=400;}setTimeout(type,speed);}type();})();
+
+/* ═══ SERVICE CARDS ═══ */
+(function(){var grid=document.getElementById('svc-grid');var services=[{icon:'🎯',title:'3D 产品建模',desc:'C4D 高精度产品建模，精准还原产品形态与结构细节，为后续渲染提供优质模型基础。',tag:'C4D / Blender'},{icon:'✨',title:'产品渲染',desc:'Octane / KeyShot 专业渲染，通过灯光、材质、构图打造具有商业冲击力的产品视觉。',tag:'Octane / KeyShot'},{icon:'🎬',title:'产品动画',desc:'产品展示动画与动态视频制作，多角度呈现产品优势，适配电商平台视频需求。',tag:'AE / Pr / C4D'},{icon:'🖼️',title:'电商视觉设计',desc:'亚马逊 / B 站 / 国内电商平台全套视觉输出，主图、详情页、A+ 页面全覆盖。',tag:'PS / AI'},{icon:'🤖',title:'AI 辅助创作',desc:'借助 Codex、LibTV、Lovart 等 AI 工具提升创作效率，探索前沿视觉表达。',tag:'Codex / Lovart'},{icon:'🎨',title:'后期精修',desc:'Photoshop 后期合成与调色，达芬奇视频调色，确保每一帧都精美无瑕。',tag:'PS / 达芬奇'}];services.forEach(function(s){var card=document.createElement('div');card.className='svc-card';card.innerHTML='<span class="svc-icon">'+s.icon+'</span><h3>'+s.title+'</h3><p>'+s.desc+'</p><span class="svc-tag">'+s.tag+'</span>';card.addEventListener('mousemove',function(e){var r=card.getBoundingClientRect();card.style.setProperty('--mx',e.clientX-r.left+'px');card.style.setProperty('--my',e.clientY-r.top+'px');});grid.appendChild(card);});})();
+
+/* ═══ CATEGORY CARDS ═══ */
+function makeCard(item,catTitle){var d=document.createElement('div');d.className='cat-card';d.addEventListener('click',function(){showLB(item.image,item.title);});d.innerHTML='<img src="'+item.image+'" alt="'+item.title+'" loading="lazy"><div class="cat-info"><h3>'+item.title+'</h3><p>'+catTitle+'</p></div>';return d;}
+var categories={zhutu:{title:'主图设计',items:[{image:IMG('充电器.jpg'),title:'充电器主图'},{image:IMG('冲牙器.jpg'),title:'冲牙器主图'},{image:IMG('吹风机.jpg'),title:'吹风机主图'},{image:IMG('风扇.jpg'),title:'风扇主图'},{image:IMG('手机支架.jpg'),title:'手机支架主图'},{image:IMG('音响.jpg'),title:'音响主图'}]},dianshang:{title:'电商设计',items:[{image:IMG('AMAZN_亚马逊主图.jpg'),title:'亚马逊主图'},{image:IMG('AMAZN_亚马逊.jpg'),title:'亚马逊详情'},{image:IMG('AMAZN_B店.jpg'),title:'B店页面'},{image:IMG('AMAZN_未标题-1.jpg'),title:'亚马逊视觉'}]},xiangqing:{title:'详情页设计',items:[{image:IMG('BWBEI_保温杯.jpg'),title:'保温杯详情页'},{image:IMG('CDTOU_充电头.jpg'),title:'充电头详情页'},{image:IMG('CFENG_吹风机.jpg'),title:'吹风机详情页'},{image:IMG('CYAQU_冲牙器.jpg'),title:'冲牙器详情页'},{image:IMG('DYASH_电动牙刷.jpg'),title:'电动牙刷详情页'},{image:IMG('JMQIA_筋膜枪.jpg'),title:'筋膜枪详情页'},{image:IMG('SJXIA_数据线.jpg'),title:'数据线详情页'},{image:IMG('SUO_智能锁.jpg'),title:'智能锁详情页'},{image:IMG('UPAN_U盘.jpg'),title:'U盘详情页'},{image:IMG('ZJIEQ_转接器.jpg'),title:'转接器详情页'}]}};
+Object.keys(categories).forEach(function(k){var grid=document.getElementById('cat-'+k);categories[k].items.forEach(function(it){grid.appendChild(makeCard(it,categories[k].title));});});
+
+/* ═══ SKILL TAGS & BARS ═══ */
+(function(){var aiSkills=['Codex（AI 编程）','LibTV（AI 视频）','Lovart（AI 设计）','Midjourney','Stable Diffusion'];var el=document.getElementById('skill-tags-ai');aiSkills.forEach(function(s){var t=document.createElement('span');t.className='skill-tag';t.textContent=s;el.appendChild(t);});var bars=[{n:'C4D',v:90},{n:'Octane',v:85},{n:'KeyShot',v:80},{n:'After Effects',v:75},{n:'Premiere',v:78},{n:'Photoshop',v:92},{n:'Illustrator',v:72},{n:'达芬奇调色',v:70}];var be=document.getElementById('skill-bars');bars.forEach(function(b){var d=document.createElement('div');d.className='skill-bar-item';d.innerHTML='<div class="sb-label"><span>'+b.n+'</span><span>'+b.v+'%</span></div><div class="sb-track"><div class="sb-fill" data-w="'+b.v+'"></div></div>';be.appendChild(d);});})();
+
+/* ═══ LIGHTBOX ═══ */
+var lb=document.getElementById('lightbox'),lbImg=document.getElementById('lb-img'),lbCap=document.getElementById('lb-caption');
+function showLB(src,title){lbImg.src=src;lbImg.alt=title;lbCap.textContent=title;lb.classList.add('show');}
+lb.addEventListener('click',function(){lb.classList.remove('show');});
+
+/* ═══ NAV SCROLL ═══ */
+window.addEventListener('scroll',function(){document.getElementById('nav').classList.toggle('scrolled',window.scrollY>40);},{passive:true});
+
+
+/* ═══ WEBGL LIGHT TUNNEL ═══ */
+(function(){
+  var canvas=document.getElementById('hero-canvas');
+  var gl=canvas.getContext('webgl2',{alpha:true,premultipliedAlpha:true,antialias:true});
+  if(!gl){canvas.style.display='none';return;}
+  var vsrc='#version 300 es\nin vec2 position;\nvoid main(){gl_Position=vec4(position,0.0,1.0);}';
+  var fsrc='#version 300 es\nprecision highp float;\nuniform vec2 iResolution;\nuniform float iTime,uSpeed,uFlowDir,uPulseSpeed,uPulseLength,uPulseBlend,uPulseWidth,uCableCount,uThickness,uRimWidth,uWaviness,uSway,uSize,uGlow,uFadeNear,uFadeFar,uBrightness,uColorVariance,uOpacity,uTunnelOpacity,uGrain,uGrainIntensity;\nuniform vec2 uCenter,uMouseOffset;\nuniform vec3 uCableColor,uPulseColor,uTunnelColor;\nout vec4 fragColor;\nvoid mainImage(out vec4 o,in vec2 fc){\nfloat st=uSize*2.,fd=uFlowDir,sb=uSpeed*4.*fd,wv=uWaviness*.15,ro=uSway*.5,bt=uThickness*.35+.05,bw=uRimWidth*.15+.01,cc=floor(uCableCount);\nvec2 uv=(fc-.5*iResolution)/min(iResolution.y,iResolution.x);uv-=(uCenter+uMouseOffset);uv/=(st+.0001);\nfloat r=length(uv),a=atan(uv.y,uv.x),d=-log(r+.0001),sw=sin(iTime*(uSpeed*.5+.1))*ro,wo=sin(d*1.2+iTime*sb*.25)*wv;\nfloat an=(a/6.2831853)+.5,fa=fract(an+wo+sw);float ci=floor(fa*cc),gx=fract(fa*cc)-.5;\nfloat rd=fract(sin(ci*12.9898)*43758.5453),rsp=(.4+rd*.6)*sb*uPulseSpeed,ct=bt*(.6+rd*.4);\nvec3 cc2=uCableColor;cc2*=1.+(rd-.5)*.4*uColorVariance;cc2=mix(cc2,uPulseColor,rd*.25*uColorVariance);\nfloat sc=d+iTime*rsp,pf=fract(sc),dtc=abs(gx),wm=smoothstep(ct,ct-.05,dtc),rg=smoothstep(bw,0.,abs(dtc-ct));\nfloat pt=ct*uPulseWidth,pm=smoothstep(pt,pt-.05*uPulseWidth,dtc);\nfloat pd=abs(pf-.5),pto=uPulseLength,pc=pto*(1.-uPulseBlend),pl=min(pc,pto-max(fwidth(sc),1e-4)),dp=1.-smoothstep(pl,pto,pd);\nfloat ab=wm*uTunnelOpacity,aR=rg,aP=clamp(dp*pm,0.,1.);\nvec3 fcol=uTunnelColor*ab+cc2*aR*1.3*uGlow+uPulseColor*dp*3.*pm;\nfloat df=smoothstep(0.,uFadeNear,r)*smoothstep(uFadeFar,uFadeFar-.9,r),inten=clamp(ab+aR+aP,0.,1.)*df;\nvec3 fc2=fcol*uBrightness;float al=clamp(inten,0.,1.)*uOpacity;vec3 outR=fc2*al;\nif(uGrain>.5){float gv=(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233))+iTime)*43758.5453)-.5)*uGrainIntensity;outR=clamp(outR+gv,0.,1.);al=clamp(al+gv,0.,1.);}\no=vec4(outR,al);}\nvoid main(){vec4 o;mainImage(o,gl_FragCoord.xy);fragColor=o;}';
+  function cs(type,src){var s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){gl.deleteShader(s);return null;}return s;}
+  function h2r(hex){var r=/^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);if(!r)return[1,1,1];return[parseInt(r[1],16)/255,parseInt(r[2],16)/255,parseInt(r[3],16)/255];}
+  var vs=cs(gl.VERTEX_SHADER,vsrc),fs=cs(gl.FRAGMENT_SHADER,fsrc);
+  if(!vs||!fs)return;
+  var p=gl.createProgram();gl.attachShader(p,vs);gl.attachShader(p,fs);gl.linkProgram(p);
+  if(!gl.getProgramParameter(p,gl.LINK_STATUS))return;
+  var u={};
+  ['iResolution','iTime','uSpeed','uFlowDir','uPulseSpeed','uPulseLength','uPulseBlend','uPulseWidth','uCableCount','uThickness','uRimWidth','uWaviness','uSway','uSize','uGlow','uFadeNear','uFadeFar','uBrightness','uColorVariance','uOpacity','uTunnelOpacity','uGrain','uGrainIntensity','uCenter','uMouseOffset','uCableColor','uPulseColor','uTunnelColor'].forEach(function(n){u[n]=gl.getUniformLocation(p,n);});
+  var vao=gl.createVertexArray();gl.bindVertexArray(vao);
+  var buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+  var pl=gl.getAttribLocation(p,'position');gl.enableVertexAttribArray(pl);gl.vertexAttribPointer(pl,2,gl.FLOAT,false,0,0);
+  function resize(){var w=canvas.clientWidth,h=canvas.clientHeight;canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h);}
+  resize();new ResizeObserver(resize).observe(canvas);
+  gl.useProgram(p);
+  gl.uniform1f(u.uSpeed,0.08);gl.uniform1f(u.uFlowDir,-1.0);gl.uniform1f(u.uPulseSpeed,1.8);gl.uniform1f(u.uPulseLength,0.22);gl.uniform1f(u.uPulseBlend,1.0);gl.uniform1f(u.uPulseWidth,1.0);gl.uniform1f(u.uCableCount,28);gl.uniform1f(u.uThickness,0.3);gl.uniform1f(u.uRimWidth,0.12);gl.uniform1f(u.uWaviness,0.25);gl.uniform1f(u.uSway,0.4);gl.uniform1f(u.uSize,0.85);gl.uniform1f(u.uGlow,1.2);gl.uniform1f(u.uFadeNear,0.3);gl.uniform1f(u.uFadeFar,1.8);gl.uniform1f(u.uBrightness,0.9);gl.uniform1f(u.uColorVariance,1.0);gl.uniform1f(u.uOpacity,1.0);gl.uniform1f(u.uTunnelOpacity,0.08);gl.uniform1f(u.uGrain,1.0);gl.uniform1f(u.uGrainIntensity,0.03);gl.uniform2f(u.uCenter,0,0);gl.uniform2f(u.uMouseOffset,0,0);
+  var c2=h2r('#7c3aed');gl.uniform3f(u.uCableColor,c2[0],c2[1],c2[2]);
+  var p2=h2r('#a78bfa');gl.uniform3f(u.uPulseColor,p2[0],p2[1],p2[2]);
+  var t2=h2r('#4c1d95');gl.uniform3f(u.uTunnelColor,t2[0],t2[1],t2[2]);
+  var mouse=[0.5,0.5],tm=[0.5,0.5],t0=performance.now(),raf=0,isVis=true,isPV=!document.hidden;
+  canvas.addEventListener('mousemove',function(e){var r=canvas.getBoundingClientRect();tm=[(e.clientX-r.left)/r.width,1-(e.clientY-r.top)/r.height];});
+  canvas.addEventListener('mouseleave',function(){tm=[0.5,0.5];});
+  function loop(t){gl.useProgram(p);gl.uniform1f(u.iTime,(t-t0)*0.001);mouse[0]+=0.05*(tm[0]-mouse[0]);mouse[1]+=0.05*(tm[1]-mouse[1]);gl.uniform2f(u.uMouseOffset,(mouse[0]-0.5)*0.06,(mouse[1]-0.5)*0.06);gl.uniform2f(u.iResolution,canvas.width,canvas.height);gl.drawArrays(gl.TRIANGLES,0,3);raf=requestAnimationFrame(loop);}
+  function tryS(){if(isVis&&isPV&&raf===0)raf=requestAnimationFrame(loop);}
+  function tryP(){if(raf){cancelAnimationFrame(raf);raf=0;}}
+  new IntersectionObserver(function(e){isVis=e[0].isIntersecting;isVis?tryS():tryP();},{threshold:0}).observe(canvas);
+  document.addEventListener('visibilitychange',function(){isPV=!document.hidden;isPV?tryS():tryP();});
+  tryS();
+})();
+
+/* ═══ DRIFT WALL ═══ */
+(function(){
+  var items=[{image:IMG('KSREN_手表.jpg'),title:'KSREN 手表渲染'},{image:IMG('KSREN_耳机.jpg'),title:'KSREN 耳机渲染'},{image:IMG('OCREN_精华液.jpg'),title:'OCREN 精华液渲染'},{image:IMG('KSREN_数据线.jpg'),title:'KSREN 数据线渲染'},{image:IMG('OCREN_素颜霜.jpg'),title:'OCREN 素颜霜渲染'},{image:IMG('KSREN_黄展鹏.jpg'),title:'KSREN 场景渲染'},{image:IMG('OCREN_身体乳.jpg'),title:'OCREN 身体乳渲染'},{image:IMG('KSREN_蓝牙耳机.jpg'),title:'KSREN 蓝牙耳机渲染'},{image:IMG('OCREN_洗面奶.jpg'),title:'OCREN 洗面奶渲染'},{image:IMG('KSREN_耳机内部.jpg'),title:'KSREN 耳机内部渲染'},{image:IMG('OCREN_唇膏.jpg'),title:'OCREN 唇膏渲染'},{image:IMG('OCREN_口红.jpg'),title:'OCREN 口红渲染'}];
+  var container=document.getElementById('drift-wall'),COLUMNS=5,TILE_W=220,TILE_H=148,GAP=16,SPEED=36,VARIANCE=0.5,PARALLAX=0.55,TILT=18,TURN=-16,ROLL=-2,DEPTH=140;
+  var plane=document.createElement('div');plane.className='dw-plane';container.appendChild(plane);
+  var cols=Array.from({length:COLUMNS},function(){return[];});
+  items.forEach(function(it,i){cols[i%COLUMNS].push(it);});
+  cols=cols.map(function(c){return c.length?c:items.slice(0,1);});
+  var ch=600,offsets=[],vels=[],tracks=[],lt=null,rid=null,hCol=-1;
+  var ptr={x:0,y:0},ptrD={x:0,y:0};
+  var red=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function cf(i,v){return 1+v*((((i*0.6180339887+0.35)%1)*2-1));}
+  var bv=cols.map(function(_,c){return SPEED*cf(c,VARIANCE)*(c%2===0?1:-1);});
+  var metas=[];
+  function rebuild(){
+    var unit=TILE_H+GAP;
+    metas=cols.map(function(col){var ch2=Math.max(unit,col.length*unit);return{copyHeight:ch2,copies:Math.max(2,Math.ceil(ch*1.6/ch2)+1)};});
+    offsets=metas.map(function(m,c){return m.copyHeight*((c*0.37)%1);});
+    vels=cols.map(function(){return 0;});
+    plane.innerHTML='';tracks=[];
+    cols.forEach(function(col,c){
+      var meta=metas[c],ce=document.createElement('div');ce.className='dw-col';
+      var t=document.createElement('div');t.className='dw-track';
+      for(var cp=0;cp<meta.copies;cp++)col.forEach(function(it){
+        var tile=document.createElement('div');tile.className='dw-tile';
+        tile.innerHTML='<img src="'+it.image+'" alt="'+it.title+'" loading="lazy">';
+        tile.setAttribute('data-col',c);
+        tile.addEventListener('mouseenter',function(){hCol=c;});
+        tile.addEventListener('mouseleave',function(){hCol=-1;});
+        t.appendChild(tile);
+      });
+      tracks.push(t);ce.appendChild(t);plane.appendChild(ce);
+    });
+  }
+  new ResizeObserver(function(e){ch=e[0].contentRect.height||600;rebuild();}).observe(container);
+  function anim(ts){
+    if(lt===null)lt=ts;
+    var dt=Math.min(0.05,Math.max(0,ts-lt)/1000);lt=ts;
+    var mt=PARALLAX*8,tx=ptr.x*mt,ty=-ptr.y*mt,damp=1-Math.exp(-dt/0.12);
+    ptrD.x+=(tx-ptrD.x)*damp;ptrD.y+=(ty-ptrD.y)*damp;
+    plane.style.transform='translate(-50%,-50%) scale(1.18) rotateX('+(TILT+ptrD.y)+'deg) rotateY('+(TURN+ptrD.x)+'deg) rotateZ('+ROLL+'deg) translateZ('+(-DEPTH)+'px)';
+    if(!red)for(var c=0;c<tracks.length;c++){
+      var meta=metas[c];if(!meta)continue;
+      var f=(hCol===c?0:1),tgt=bv[c]*f,ease=1-Math.exp(-dt/(tgt===0?0.16:0.28));
+      vels[c]+=(tgt-vels[c])*ease;
+      var n=offsets[c]+vels[c]*dt;n=((n%meta.copyHeight)+meta.copyHeight)%meta.copyHeight;
+      offsets[c]=n;tracks[c].style.transform='translate3d(0,'+(-n)+'px,0)';
+    }
+    rid=requestAnimationFrame(anim);
+  }
+  container.addEventListener('pointermove',function(e){var r=container.getBoundingClientRect();ptr={x:(e.clientX-r.left)/r.width-0.5,y:(e.clientY-r.top)/r.height-0.5};});
+  container.addEventListener('pointerleave',function(){ptr={x:0,y:0};hCol=-1;});
+  rebuild();rid=requestAnimationFrame(anim);
+})();
+</script>
+</body>
+</html>
